@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
+
+import { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const productSchema = new Schema(
   {
@@ -14,7 +15,7 @@ const productSchema = new Schema(
     category: { type: String, required: [true, "Category is required"] },
     location: { type: String, required: [true, "Location is required"] },
     date: { type: Date, default: Date.now },
-    postedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    postedBy: { type: String, required: true },
     isArchived: { type: Boolean, default: false },
   },
   { timestamps: true }
@@ -22,4 +23,4 @@ const productSchema = new Schema(
 
 const Product = mongoose.model("Product", productSchema);
 
-module.exports = { Product };
+export default Product;

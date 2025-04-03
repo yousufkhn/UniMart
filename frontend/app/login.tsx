@@ -33,7 +33,7 @@ export default function LoginScreen() {
     try {
       const response = await axios.post(
         "https://findmyverto-dndxdgfsezc0gben.centralindia-01.azurewebsites.net/api/v2/student/basicInfo",
-        // "http://192.168.32.1:5000/api/auth/ums-login",
+        // "https://chubby-files-bow.loca.lt/api/auth/ums-login",
         {
           reg_no: regNo,
           password,

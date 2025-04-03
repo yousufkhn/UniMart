@@ -10,9 +10,9 @@ const _layout = () => {
                 title: "Home",
                 headerShown: false,
                 tabBarIcon: ({ focused }) => (
-                    <Image source={require("../../assets/images/home-icon.png")}
-                    tintColor={focused ? "#004CFF" : "#000000"}
-                     className="size-6" />
+                    <View>
+                        <Text style={{ color: focused ? "#004CFF" : "#000000" }}>🏠</Text>
+                    </View>
                 ),
             }}
         />
@@ -21,6 +21,23 @@ const _layout = () => {
             options={{
                 title: "Profile",
                 headerShown: false,
+                tabBarIcon: ({ focused }) => (
+                    <View>
+                        <Text style={{ color: focused ? "#004CFF" : "#000000" }}>👤</Text>
+                    </View>
+                ),
+            }}
+        />
+        <Tabs.Screen
+            name="addproduct"
+            options={{
+                title: "Products",
+                headerShown: false,
+                tabBarIcon: ({ focused }) => (
+                    <View>
+                        <Text style={{ color: focused ? "#004CFF" : "#000000" }}>🛒</Text>
+                    </View>
+                ),
             }}
         />
     </Tabs>

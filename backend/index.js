@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js"; // Import MongoDB connection
 import authRoutes from "./routes/umsRoutes.js"; // Import authentication routes
+import productRoutes from "./routes/productRoutes.js"; // Import product routes
 
 dotenv.config();
 connectDB(); // Call DB connection function
@@ -27,6 +28,6 @@ app.get("/", (req, res) => {
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0",() => {
   console.log(`Server running on port ${PORT}`);
 });
