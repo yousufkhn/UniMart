@@ -10,11 +10,12 @@ connectDB(); // Call DB connection function
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: "*" }));  // Allow all origins for testing
 app.use(express.json());
 
 // Register the Auth Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
 
 
 // Routes
