@@ -74,7 +74,7 @@ const LocationSelector = ({
           styles.customInput,
           customLocation && styles.selectedOption, // Highlight if custom input is active
         ]}
-        placeholder="Custom Location"
+        placeholder="Canada?"
         value={customLocation}
         onChangeText={handleCustomInput}
       />

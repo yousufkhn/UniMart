@@ -22,6 +22,7 @@ import { useSessionStore } from "@/utils/useSessionStore";
 import axios from "axios";
 import CategorySelector from "@/components/CategorySelector";
 import LocationSelector from "@/components/LocationSelector";
+import LottieView from "lottie-react-native";
 
 //images import
 import electronicsImage from "../../assets/images/categories/electronics.png";
@@ -118,11 +119,12 @@ const addproduct = () => {
       !location ||
       images.length === 0
     ) {
+      setUploading(false);
       Alert.alert("Error", "Please fill in all required fields.");
-
       return;
     }
     if (isNaN(parseFloat(price)) || isNaN(parseInt(quantity))) {
+      setUploading(false);
       Alert.alert("Error", "Price and quantity must be valid numbers.");
       return;
     }
@@ -164,10 +166,12 @@ const addproduct = () => {
       // Navigate to the home page
       router.replace("/(tabs)");
       } else {
+        setUploading(false);
         Alert.alert("Error", "Failed to add product.");
       }
     } catch (error) {
       console.error(error);
+      setUploading(false);
       Alert.alert("Error", "Something went wrong.");
     }
   };
@@ -185,16 +189,39 @@ const addproduct = () => {
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
-          <ActivityIndicator size="large" color="#004CFF" />
+          {/* <ActivityIndicator size="large" color="#004CFF" /> */}
+          <LottieView
+        source={require("../../assets/lottie/uploadingProduct.json")} // Path to your Lottie file
+        autoPlay
+        loop
+        style={{ width: 150, height: 150 }} // Adjust size as needed
+      />
           <Text style={styles.modalText}>Uploading your product...</Text>
         </View>
       </View>
+
     </Modal>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
+          {/* Illustration and Explanation Section */}
+        <View style={styles.illustrationContainer}>
+          <LottieView
+            source={require("../../assets/lottie/addProduct.json")} // Replace with your Lottie file
+            autoPlay
+            loop
+            style={{ width: 80, height: 80 }} // Adjust size as needed
+          />
+          <Text style={styles.illustrationTitle}>How Selling Works</Text>
+          <Text style={styles.illustrationText}>Your name and photo will show up on the product card — but don’t worry, your secrets (and DMs) stay safe unless you spill ‘em.
+          Got stuff just collecting dust? Turn it into cash and maybe fund your next chai date or dopamine buy.
+          </Text>
+        </View>
+
+        <View style={styles.formContainer}>
+
           <Text style={styles.title}>Sell Your Product</Text>
 
           {/* Image Upload */}
@@ -295,7 +322,7 @@ const addproduct = () => {
             onSelectLocation={setLocation} />
 
           </View>
-          
+
           <TouchableOpacity
             style={[
               styles.button,
@@ -306,7 +333,7 @@ const addproduct = () => {
             <Text style={styles.buttonText}>Submit Product</Text>
           </TouchableOpacity>
           </View>
-          
+          </View>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -336,6 +363,36 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5, // For Android shadow
   },
+  illustrationContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+    paddingHorizontal: 20,
+    backgroundColor: "#d4d2f9", // Light background for the illustration section
+    paddingVertical: 20,
+    paddingBottom: 30,
+    padding:15
+  },
+  illustrationTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+  },
+  illustrationText: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginTop: 10,
+    lineHeight: 20,
+  },
+  formContainer: {
+    backgroundColor: "white", // Different background color for the form
+    borderTopLeftRadius: 20, // Rounded corners at the top
+    borderTopRightRadius: 20,
+    marginTop: -40,
+    width: "100%",
+    padding:15
+  },
   loadingSpinner: {
     width: 50,
     height: 50,
@@ -364,10 +421,10 @@ const styles = StyleSheet.create({
     backgroundColor:"#d4d2f9"
   },
   container: {
-    paddingTop: 20,
+    // paddingTop: 20,
     flexGrow: 1,
     backgroundColor: "#f9fbfc",
-    padding: 15,
+    // padding: 15,
   },
   title: {
     fontSize: 26,
