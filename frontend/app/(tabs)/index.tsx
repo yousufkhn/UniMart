@@ -34,12 +34,34 @@ export default function Index() {
 
 
   // Render a single product card
-  const renderProduct = ({ item }: { item: {_id:string, thumbnail: string; title: string; description: string; price: number } }) => (
+  const renderProduct = ({ item }: { item: { _id: string; thumbnail: string; title: string; description: string; price: number, postedBy: { studentPicture: string; studentName: string } } }) => (
     <View style={styles.card}>
+      {/* Thumbnail */}
       <Image source={{ uri: item.thumbnail }} style={styles.thumbnail} />
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.price}>${item.price}</Text>
+  
+      {/* Card Content */}
+      <View style={styles.cardContent}>
+        {/* Title and Price */}
+        <View style={styles.titleRow}>
+          <Text style={styles.productTitle}>{item.title}</Text>
+          <Text style={styles.price}>{item.price}</Text>
+        </View>
+  
+        {/* Description */}
+        <Text style={styles.description} numberOfLines={2}>
+          {item.description}
+        </Text>
+  
+        {/* Uploaded By */}
+        <View style={styles.uploadedByRow}>
+          <Image
+            // source={require("../../assets/images/react-logo.png")} // Replace with actual user image if available
+            source={{uri : item.postedBy?.studentPicture} }
+            style={styles.userAvatar}
+          />
+          <Text style={styles.uploadedByText}>{item.postedBy.studentName.split(" ")[0]}</Text>
+        </View>
+      </View>
     </View>
   );
 
@@ -135,28 +157,61 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 15,
-    marginBottom: 10,
+    marginBottom: 15,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: "#e5e5e5",
   },
   thumbnail: {
     width: "100%",
-    height: 150,
+    height: 180,
     borderRadius: 8,
     marginBottom: 10,
+  },
+  cardContent: {
+    paddingHorizontal: 5,
+  },
+  titleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  productTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    flex: 1,
+    marginRight: 10,
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#007bff",
   },
   description: {
     fontSize: 14,
     color: "#555",
     marginBottom: 10,
   },
-  price: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#007bff",
+  uploadedByRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  userAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+  uploadedByText: {
+    fontSize: 14,
+    color: "#777",
   },
 });

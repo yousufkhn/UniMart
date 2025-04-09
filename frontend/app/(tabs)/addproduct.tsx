@@ -21,6 +21,7 @@ import { uploadImageToCloudinary } from "../../utils/cloudinaryUpload"; // Adjus
 import { useSessionStore } from "@/utils/useSessionStore";
 import axios from "axios";
 import CategorySelector from "@/components/CategorySelector";
+import LocationSelector from "@/components/LocationSelector";
 
 //images import
 import electronicsImage from "../../assets/images/categories/electronics.png";
@@ -126,6 +127,8 @@ const addproduct = () => {
       return;
     }
 
+    console.log("user._id : ", user._id); // Debugging
+
     try {
       const response = await axios.post(
         "https://yourcustomsubdomain.loca.lt/api/products/addproduct",
@@ -134,13 +137,12 @@ const addproduct = () => {
           description,
           price: parseFloat(price),
           quantity: parseInt(quantity),
-          brand,
           category,
           location,
           thumbnail: images[0], // Use the first image as the thumbnail
           images,
           imagesPublicId,
-          postedBy: user?.reg_no, // Replace with the actual user ID
+          postedBy: user._id, // Replace with the actual user ID
         }
       );
 
@@ -282,23 +284,18 @@ const addproduct = () => {
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Location *</Text>
-            <TextInput
+            {/* <TextInput
               style={styles.input}
               placeholder="Hostel, or anywhere around LPU"
               value={location}
               onChangeText={setLocation}
-            />
+            /> */}
+            <LocationSelector 
+            selectedLocation={location} 
+            onSelectLocation={setLocation} />
+
           </View>
-
-          {/* Buttons */}
-          {/* <TouchableOpacity
-            style={[styles.button, uploading ? styles.disabledButton : styles.uploadButton]}
-            onPress={handleUpload}
-            disabled={uploading}
-          >
-            <Text style={styles.buttonText}>{uploading ? "Uploading..." : "Upload Images"}</Text>
-          </TouchableOpacity> */}
-
+          
           <TouchableOpacity
             style={[
               styles.button,

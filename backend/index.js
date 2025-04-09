@@ -14,6 +14,9 @@ const app = express();
 app.use(cors({ origin: "*" }));  // Allow all origins for testing
 app.use(express.json());
 
+app.use(express.urlencoded({ extended: true }));
+
+
 // Register the Auth Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);

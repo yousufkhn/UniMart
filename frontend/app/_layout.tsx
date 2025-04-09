@@ -11,6 +11,7 @@ export default function RootLayout() {
     const checkLogin = async () => {
       await initializeSession(); // Initialize session from Zustand store
       const { user } = useSessionStore.getState(); // Get updated user state
+      console.log("Initialized user:", user); // Debugging
       if (!user && segments[0] !== "auth") {
         router.replace("/login"); // Redirect to login if no user is found
       }

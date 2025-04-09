@@ -48,7 +48,7 @@ export const addProduct = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({ isArchived: false }); // Fetch all non-archived products from the database
+    const products = await Product.find({ isArchived: false }).populate("postedBy", "studentName studentPicture"); // Fetch all non-archived products from the database
     res.status(200).json(products); // Return the products as JSON
   } catch (error) {
     console.error("Error fetching products:", error.message);

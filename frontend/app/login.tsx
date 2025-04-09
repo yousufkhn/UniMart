@@ -31,27 +31,43 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
+      // Step 1: Authenticate the user
       const response = await axios.post(
-        "https://findmyverto-dndxdgfsezc0gben.centralindia-01.azurewebsites.net/api/v2/student/basicInfo",
-        // "https://chubby-files-bow.loca.lt/api/auth/ums-login",
+        // "https://findmyverto-dndxdgfsezc0gben.centralindia-01.azurewebsites.net/api/v2/student/basicInfo",
+        "https://yourcustomsubdomain.loca.lt/api/auth/ums-login",
         {
           reg_no: regNo,
           password,
-          devicePushToken: "",
         }
       );
 
+      console.log("API Response:", response.data); // Debugging
+
+
       const data = response.data as {
-        success: boolean;
-        data: { name: string; reg_no: string };
+        message: string;
+        user: {
+          attendance: string;
+          cgpa: string;
+          encryptedDob: string;
+          pendingFee: string;
+          program: string;
+          reg_no: string;
+          rollNumber: string;
+          section: string;
+          studentName: string;
+          studentPicture: string;
+        };
       };
 
-      if (data.success) {
-        // await saveSession(data.data);
-        // router.replace("/(tabs)/profile");
+      if (data.message === "Login & Fetch Successful")  {
+
+        // Step 2: Save session locally
         const { setUser } = useSessionStore.getState();
-        setUser(data.data); // Update Zustand store
-        await saveSession(data.data); // Save session to AsyncStorage
+        setUser(data.user); // Update Zustand store
+        await saveSession(data.user); // Save session to AsyncStorage
+
+        // Step 4: Navigate to the home page
         router.replace("/(tabs)");
       } else {
         Alert.alert("Login Failed", "Invalid credentials");

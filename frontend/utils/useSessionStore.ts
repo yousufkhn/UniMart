@@ -12,7 +12,10 @@ interface SessionState {
 export const useSessionStore = create<SessionState>((set) => ({
   user: null,
   isLoading: true,
-  setUser: (user) => set({ user }),
+  setUser: (user) => {
+    console.log("Setting user in Zustand store:", user); // Debugging
+    set({ user });
+  },
   initializeSession: async () => {
     const session = await getSession();
     if (session) {

@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Save user session
 export const saveSession = async (userData: any) => {
+  console.log("Saving session:", userData); // Debugging
   await AsyncStorage.setItem("userSession", JSON.stringify(userData));
 };
 
