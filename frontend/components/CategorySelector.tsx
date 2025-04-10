@@ -24,12 +24,12 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
   selectedCategory,
   onCategorySelect,
 }) => {
-  const [isModalVisible, setModalVisible] = useState(false);
+  // const [isModalVisible, setModalVisible] = useState(false);
   // const [customCategory, setCustomCategory] = useState("");
 
   const handleSelectCategory = (category: string) => {
     onCategorySelect(category);
-    setModalVisible(false);
+    // setModalVisible(false);
   };
 
   // const handleAddCustomCategory = () => {
@@ -49,176 +49,85 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({
   // };
 
   return (
-    <View>
-      {/* Category Selector Button */}
-      <TouchableOpacity
-        style={styles.categorySelector}
-        onPress={() => setModalVisible(true)}
+    <View style={styles.container}>
+      
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContainer}
       >
-        <Text style={styles.categorySelectorText}>{selectedCategory || "Select a category"}</Text>
-      </TouchableOpacity>
-
-      {/* Modal for Category Selection */}
-      <Modal visible={isModalVisible} animationType="slide" transparent>
-        <View style={styles.modalContainer}>
-
-        
-          <View style={styles.modalContent}>
-
-          <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                    <Icon name="close" size={30} color="black" />
-                  </TouchableOpacity>
-          <View style={styles.scrollContent}>
-            
-            <Text style={styles.title}>Select a Category</Text>
-
-            {/* Predefined Categories */}
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              data={predefinedCategories}
-              keyExtractor={(item) => item.name}
-              numColumns={2} // Display categories in a grid
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.categoryCard}
-                  onPress={() => handleSelectCategory(item.name)}
-                >
-                  <Image source={typeof item.image === 'string' ? { uri: item.image } : item.image} style={styles.categoryImage} />
-                  <Text style={styles.categoryText}>{item.name}</Text>
-                </TouchableOpacity>
-              )}
-            />
-
-            {/* Custom Category Input
-            <TextInput
-              style={styles.input}
-              placeholder="Add custom category"
-              value={customCategory}
-              onChangeText={setCustomCategory}
-            />
+        {predefinedCategories.map((category) => (
+          <View key={category.name} style={styles.categoryWrapper}>
             <TouchableOpacity
-              style={styles.addButton}
-              onPress={handleAddCustomCategory}
+              style={[
+                styles.categoryItem,
+                selectedCategory === category.name && styles.selectedCategory, // Highlight selected category
+              ]}
+              onPress={() => onCategorySelect(category.name)}
             >
-              <Text style={styles.addButtonText}>Add Category</Text>
-            </TouchableOpacity> */}
-
-            {/* Close Button */}
-            {/* <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity> */}
-            
-            </View>
+              <Image
+                source={typeof category.image === "string" ? { uri: category.image } : category.image}
+                style={styles.categoryImage}
+              />
+            </TouchableOpacity>
+            <Text style={styles.categoryText}>{category.name}</Text>
           </View>
-        </View>
-      </Modal>
+        ))}
+      </ScrollView>
     </View>
   );
 };
 
 export default CategorySelector;
 
+
 const styles = StyleSheet.create({
-  categorySelector: {
-    borderWidth: 0, // Remove the border for a cleaner look
-    borderRadius: 12, // Larger border radius for a pill-shaped button
-    paddingVertical: 15, // Add vertical padding for better height
-    paddingHorizontal: 25, // Add horizontal padding for better width
+  container: {
     marginBottom: 20,
-    backgroundColor: "#007bff", // Fallback background color
-    alignItems: "center",
-    justifyContent: "center", // Center the text vertically
-    shadowColor: "#000", // Add shadow for a card-like effect
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5, // Elevation for Android shadow
-  },
-  categorySelectorText: {
-    fontSize: 16, // Slightly larger font size for better readability
-    fontWeight: "600", // Semi-bold for a clean look
-    color: "#fff", // White text for contrast
-    textTransform: "uppercase", // Make the text uppercase for a modern feel
-    letterSpacing: 1, // Add letter spacing for a polished look
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: "90%",
-    height:"80%",
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-  },
-  scrollContent: {
-    alignItems: "center",
   },
   title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#ffffff", // White text for dark theme
+    marginBottom: 5,
   },
-  categoryCard: {
-    width: "45%", // Each card takes 45% of the row width
-    margin: "2.5%", // Add spacing between cards
-    backgroundColor: "#ffffff",
-    borderRadius: 10,
+  scrollContainer: {
+    // paddingHorizontal: 10,
+  },
+  categoryWrapper: {
+    alignItems: "center",
+    borderRadius: 8, // Rounded corners for consistency
+    marginHorizontal: 5,
+    // backgroundColor: "#202126", // Dark background for category wrapper
+    padding: 5,
+  },
+  categoryItem: {
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#18161b", // Darker background for category items
+    width: 60,
+    height: 60,
     padding: 10,
+    borderRadius: 8, // Rounded corners for category items
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 3,
-    height: 120, // Fixed height for the card
+  },
+  selectedCategory: {
+    borderWidth: 2,
+    borderColor: "#209440", // Green accent for selected category
   },
   categoryImage: {
-    width: 60,
-    height: 60,
-    marginBottom: 10,
-    resizeMode: "contain", // Ensure the image fits within the bounds
+    width: 30,
+    height: 30,
+    resizeMode: "contain",
   },
   categoryText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
-    color: "#333",
+    color: "#cccccc", // Light gray text for category names
     textAlign: "center",
-  },
-  input: {
-    width: "100%",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 5,
-    padding: 10,
-    marginTop: 20,
-  },
-  addButton: {
-    backgroundColor: "#007bff",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  addButtonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  closeButton: {
-    position: "absolute",
-      top: 20,
-      right: 20,
-  },
-  closeButtonText: {
-      position: "absolute",
-      top: 10,
-      right: 10,
+    marginTop: 5,
   },
 });

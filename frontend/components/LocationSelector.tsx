@@ -31,7 +31,7 @@ const LocationSelector = ({
           ]}
           onPress={() => handlePresetSelect("LPU Campus")}
         >
-          <Text style={styles.presetOptionText}>LPU Campus</Text>
+          <Text style={styles.presetOptionText}>LPU Campus 🎓</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -41,7 +41,7 @@ const LocationSelector = ({
           ]}
           onPress={() => handlePresetSelect("Law Gate")}
         >
-          <Text style={styles.presetOptionText}>Law Gate</Text>
+          <Text style={styles.presetOptionText}>Law Gate ⚖️</Text>
         </TouchableOpacity>
       </View>
 
@@ -54,7 +54,7 @@ const LocationSelector = ({
           ]}
           onPress={() => handlePresetSelect("Phagwara")}
         >
-          <Text style={styles.presetOptionText}>Phagwara</Text>
+          <Text style={styles.presetOptionText}>Phagwara 🏬</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -64,7 +64,7 @@ const LocationSelector = ({
           ]}
           onPress={() => handlePresetSelect("Deepnagar")}
         >
-          <Text style={styles.presetOptionText}>DeepNagar</Text>
+          <Text style={styles.presetOptionText}>DeepNagar 🛖</Text>
         </TouchableOpacity>
       </View>
 
@@ -74,7 +74,8 @@ const LocationSelector = ({
           styles.customInput,
           customLocation && styles.selectedOption, // Highlight if custom input is active
         ]}
-        placeholder="Canada?"
+        placeholder="Canada? 🇨🇦"
+        placeholderTextColor={"grey"}
         value={customLocation}
         onChangeText={handleCustomInput}
       />
@@ -96,27 +97,27 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 5,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#2a2b2f", // Darker border for options
     borderRadius: 8,
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#202126", // Dark background for options
   },
   selectedOption: {
-    borderColor: "#007bff", // Highlight border color
-    backgroundColor: "#e6f0ff", // Highlight background color
+    borderColor: "#209440", // Green accent for selected option
+    backgroundColor: "#18161b", // Slightly darker background for selected option
   },
   presetOptionText: {
     fontSize: 14,
-    color: "#333",
+    color: "#cccccc", // Light gray text for options
   },
   customInput: {
     padding: 10,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: "#2a2b2f", // Darker border for input
     borderRadius: 8,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#202126", // Dark background for input
     fontSize: 14,
-    color: "#333",
+    color: "#ffffff", // White text for input
     marginHorizontal: 5,
   },
 });

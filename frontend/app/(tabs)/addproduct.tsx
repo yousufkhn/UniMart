@@ -35,6 +35,7 @@ import groceriesImage from "@/assets/images/categories/groceries.png";
 import healthBeautyImage from "@/assets/images/categories/health_beauty.png";
 import automotiveImage from "@/assets/images/categories/automotive.png";
 import furnitureImage from "@/assets/images/categories/furniture.png";
+import othersImage from "@/assets/images/categories/others.png";
 import { router } from "expo-router";
 
 // Predefined categories with images
@@ -49,6 +50,7 @@ const predefinedCategories = [
   { name: "Health & Beauty", image: healthBeautyImage },
   { name: "Automotive", image: automotiveImage },
   { name: "Furniture", image: furnitureImage },
+  { name: "Others", image: othersImage },
 ];
 
 const addproduct = () => {
@@ -178,7 +180,7 @@ const addproduct = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor:"#18161b" }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {/* Uploading Modal */}
@@ -196,7 +198,7 @@ const addproduct = () => {
         loop
         style={{ width: 150, height: 150 }} // Adjust size as needed
       />
-          <Text style={styles.modalText}>Uploading your product...</Text>
+          <Text style={styles.modalText}>Hang Tight... We are uploading</Text>
         </View>
       </View>
 
@@ -262,9 +264,13 @@ const addproduct = () => {
               placeholder="Whats it called?"
               value={title}
               onChangeText={setTitle}
+              placeholderTextColor="#cccccc" // Light gray placeholder text
+
             />
           </View>
 
+
+          <Text style={styles.label}>Select a Category *</Text>
           <CategorySelector
             predefinedCategories={predefinedCategories}
             selectedCategory={category}
@@ -283,6 +289,7 @@ const addproduct = () => {
               value={description}
               onChangeText={setDescription}
               multiline
+              placeholderTextColor="#cccccc" // Light gray placeholder text
             />
           </View>
 
@@ -295,6 +302,8 @@ const addproduct = () => {
                 value={price}
                 onChangeText={setPrice}
                 keyboardType="numeric"
+                placeholderTextColor="#cccccc" // Light gray placeholder text
+
               />
             </View>
             <View style={[styles.inputGroup, styles.halfWidth]}>
@@ -305,6 +314,8 @@ const addproduct = () => {
                 value={quantity}
                 onChangeText={setQuantity}
                 keyboardType="numeric"
+                placeholderTextColor="#cccccc" // Light gray placeholder text
+
               />
             </View>
           </View>
@@ -346,13 +357,13 @@ export default addproduct;
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
+    backgroundColor: "rgba(0, 0, 0, 0.7)", // Darker semi-transparent background
     justifyContent: "center",
     alignItems: "center",
   },
   modalContent: {
     width: "80%",
-    backgroundColor: "white",
+    backgroundColor: "#18161b", // Dark modal background
     borderRadius: 10,
     padding: 20,
     alignItems: "center",
@@ -361,93 +372,84 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5, // For Android shadow
+    elevation: 5,
   },
   illustrationContainer: {
     alignItems: "center",
     marginBottom: 20,
     paddingHorizontal: 20,
-    backgroundColor: "#d4d2f9", // Light background for the illustration section
-    paddingVertical: 20,
+    backgroundColor: "#18161b", // Darker background for illustration
     paddingBottom: 30,
-    padding:15
+    padding: 15,
+    borderRadius: 12,
   },
   illustrationTitle: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "#ffffff", // White text
     textAlign: "center",
   },
   illustrationText: {
-    fontSize: 14,
-    color: "#555",
+    fontSize: 12,
+    color: "#cccccc", // Light gray text
     textAlign: "center",
     marginTop: 10,
-    lineHeight: 20,
   },
   formContainer: {
-    backgroundColor: "white", // Different background color for the form
-    borderTopLeftRadius: 20, // Rounded corners at the top
+    backgroundColor: "#18161b", // Dark background for the form
+    borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     marginTop: -40,
     width: "100%",
-    padding:15
-  },
-  loadingSpinner: {
-    width: 50,
-    height: 50,
-    marginBottom: 15,
+    padding: 15,
   },
   modalText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "#ffffff", // White text
     textAlign: "center",
   },
   allInputGroup: {
     marginBottom: 15,
     width: "100%",
     borderRadius: 12,
-    borderWidth:1,
+    // borderWidth: 1,
     padding: 12,
     marginTop: 15,
-    borderColor: "#e9ebec",
-    backgroundColor: "white",
+    borderColor: "#2a2b2f", // Darker border
+    backgroundColor: "#18161b", // Dark input group background
   },
   uploadBoxOutsideBorder: {
-    borderWidth: 4, // Outer border width
-    borderColor: "#d4d2f9",
-    borderRadius: 12, // Outer border radius
-    backgroundColor:"#d4d2f9"
+    borderWidth: 2,
+    borderColor: "#209440", // Green accent border
+    borderRadius: 12,
+    backgroundColor: "#209440", // Darker background
   },
   container: {
-    // paddingTop: 20,
     flexGrow: 1,
-    backgroundColor: "#f9fbfc",
-    // padding: 15,
+    backgroundColor: "#18161b", // Dark background
   },
   title: {
     fontSize: 26,
     fontWeight: "600",
-    color: "#333",
+    color: "#ffffff", // White text
     marginBottom: 20,
     textAlign: "left",
   },
   uploadBox: {
-    backgroundColor: "white",
+    backgroundColor: "#202126", // Darker background
     borderWidth: 2,
-    borderColor: "#007bff",
+    borderColor: "#209440", // Green accent border
     borderRadius: 12,
     padding: 15,
     alignItems: "center",
     width: "100%",
-    // height: "15%",
     justifyContent: "center",
   },
   uploadText: {
     marginTop: 10,
     fontSize: 16,
-    color: "black",
+    color: "#ffffff", // White text
     fontWeight: "bold",
   },
   imagePreview: {
@@ -457,7 +459,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   imageContainer: {
-    position: "relative", // To position the remove button over the image
+    position: "relative",
     marginRight: 10,
     marginBottom: 10,
   },
@@ -466,7 +468,7 @@ const styles = StyleSheet.create({
     height: 75,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "#f9fbfc",
+    borderColor: "#2a2b2f", // Darker border
   },
   removeButton: {
     position: "absolute",
@@ -477,10 +479,12 @@ const styles = StyleSheet.create({
     height: 20,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#18161b", // Dark background for remove button
   },
   removeButtonIcon: {
-    width:18,
-    height:18,
+    width: 18,
+    height: 18,
+    tintColor: "#ffffff", // White icon
   },
   inputGroup: {
     marginBottom: 15,
@@ -489,15 +493,15 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#555",
+    color: "#ffffff", // White text
     marginBottom: 5,
   },
   input: {
-    backgroundColor: "#f1f4fe",
+    backgroundColor: "#202126", // Darker input background
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
-    color: "#333",
+    color: "white", // White text
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -524,16 +528,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   uploadButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#209440", // Green accent
   },
   submitButton: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#209440", // Green accent
   },
   disabledButton: {
-    backgroundColor: "#ccc",
+    backgroundColor: "#555555", // Gray for disabled button
   },
   buttonText: {
-    color: "#fff",
+    color: "#ffffff", // White text
     fontSize: 18,
     fontWeight: "bold",
   },

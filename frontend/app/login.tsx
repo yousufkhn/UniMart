@@ -83,7 +83,7 @@ export default function LoginScreen() {
     <KeyboardAvoidingView style={styles.container}>
       <Image
         source={require("../assets/images/login-img.jpg")}
-        className="w-full h-1/3 mb-2"
+        style={{ width: "100%", height: "30%", marginBottom: 10, resizeMode: "cover" }}
       />
       <Text style={styles.title}>
         {" "}
