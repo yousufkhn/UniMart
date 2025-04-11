@@ -48,8 +48,8 @@ export default function ProfileScreen() {
       </View>
 
       <TouchableOpacity style={styles.logoutButton} onPress={async () => {
-        await logout();
         router.replace("/login");
+        await logout();
       }}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>

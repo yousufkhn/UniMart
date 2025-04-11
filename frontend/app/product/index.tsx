@@ -15,6 +15,9 @@ const ProductPage = () => {
 
   const productData = JSON.parse(product as string); // Parse the product data
 
+  console.log("Product thumbnail:", productData.thumbnail); // Debugging
+  console.log("Product data:", productData); // Debugging
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.imageContainer}>

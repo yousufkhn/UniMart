@@ -11,10 +11,12 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
-import axios from "axios";
-import { saveSession } from "@/utils/auth";
+import LottieView from "lottie-react-native";
+import axios, { get } from "axios";
+import { saveSession,getSession } from "@/utils/auth";
 import { useSessionStore } from "@/utils/useSessionStore";
 
 export default function LoginScreen() {
@@ -22,6 +24,7 @@ export default function LoginScreen() {
   const [regNo, setRegNo] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
 
   const handleLogin = async () => {
     if (!regNo || !password) {
@@ -96,6 +99,7 @@ export default function LoginScreen() {
         onChangeText={setRegNo}
         style={styles.input}
         keyboardType="numeric"
+        placeholderTextColor={"#cccccc"}
       />
 
       <TextInput
@@ -104,6 +108,7 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
         style={styles.input}
+        placeholderTextColor={"#cccccc"} 
       />
 
       {loading ? (
@@ -122,6 +127,25 @@ export default function LoginScreen() {
           making transactions secure & scam-free
         </Text>
       </View>
+
+      {/* Modal for Lottie Animation */}
+      <Modal visible={loading} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+        <View style={styles.smallModalContainer}>
+          <LottieView
+            source={require("../assets/lottie/loading.json")} // Replace with your Lottie file
+            autoPlay
+            loop
+            style={styles.lottie}
+          />
+          <Text style={styles.modalText}>
+            Logging in... It in might take a few tries or a bit longer than usual — depends on how the UMS server is feeling today.
+          </Text>
+        </View>
+        </View>
+      </Modal>
+
+      
     </KeyboardAvoidingView>
   );
 }
@@ -132,59 +156,95 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#fff8ee",
+    backgroundColor: "#18161b", // Dark background
+  },
+  image: {
+    width: "100%",
+    height: "30%",
+    marginBottom: 10,
+    resizeMode: "cover",
+    borderRadius: 10,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 30,
+    color: "#ffffff", // White text
+    marginBottom: 20,
+    textAlign: "center",
   },
   subTitle: {
-    fontSize: 12, // Smaller than the main title
-    color: "#6B7280", // Soft gray for a subtle look
-    marginBottom: 10, // Adds spacing before the input fields
-    fontWeight: "500", // Medium weight for readability
+    fontSize: 14,
+    color: "#cccccc", // Light gray text
+    marginBottom: 20,
+    fontWeight: "500",
     alignSelf: "flex-start",
   },
   input: {
     width: "100%",
     height: 50,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: "#2a2b2f", // Dark border
     borderRadius: 8,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#202126", // Darker input background
+    color: "#ffffff", // White text
   },
   button: {
     width: "100%",
     height: 50,
-    backgroundColor: "#004CFF",
+    backgroundColor: "#209440", // Green accent
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 8,
     marginTop: 10,
   },
   buttonText: {
-    color: "#FFFFFF",
+    color: "#ffffff", // White text
     fontSize: 16,
     fontWeight: "bold",
   },
   disclaimerBox: {
     marginTop: 20,
-    marginBottom: 10,
     padding: 10,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
-    backgroundColor: "#f9f9f9",
+    borderColor: "#2a2b2f", // Dark border
+    backgroundColor: "#202126", // Darker background
     borderRadius: 8,
     width: "100%",
     alignItems: "center",
   },
   disclaimerText: {
     fontSize: 12,
-    color: "#6B7280",
+    color: "#cccccc", // Light gray text
+    textAlign: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)", // Semi-transparent dark overlay
+  },
+  smallModalContainer: {
+    width: "80%", // Smaller modal width
+    padding: 20,
+    backgroundColor: "#202126", // Matches the app's dark theme
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5, // Adds a subtle shadow for better visibility
+  },
+  lottie: {
+    width: 100,
+    height: 100, // Smaller Lottie animation size
+    marginBottom: 15,
+  },
+  modalText: {
+    fontSize: 14,
+    color: "#cccccc", // Light gray text
     textAlign: "center",
   },
 });

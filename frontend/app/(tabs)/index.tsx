@@ -154,7 +154,7 @@ export default function Index() {
     <TouchableOpacity
       onPress={() =>
         router.push({
-          pathname: "/product/index",
+          pathname: "/product",
           params: { product: JSON.stringify(item) }, // Pass product data as params
         })
       }

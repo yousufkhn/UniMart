@@ -27,6 +27,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     return differenceInDays === 0 ? "Today" : `${differenceInDays} days ago`;
   };
 
+  console.log("main page product thumbnail ",product.thumbnail); // Debugging
+
   return (
     <View style={styles.card}>
       {/* Thumbnail with Wishlist and Days Ago */}
