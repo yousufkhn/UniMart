@@ -61,6 +61,7 @@ const addproduct = () => {
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("");
   const [location, setLocation] = useState("");
+  const [localImages, setLocalImages] = useState<string[]>([]); // Array of local image URIs
   const [images, setImages] = useState<string[]>([]); // Array of uploaded image URLs
   const [imagesPublicId, setImagesPublicId] = useState<string[]>([]); // Array of public IDs
   const [uploading, setUploading] = useState(false);
@@ -75,13 +76,13 @@ const addproduct = () => {
     });
 
     if (!result.canceled) {
-      setImages([...images, ...result.assets.map((asset) => asset.uri)]);
+      setLocalImages([...localImages, ...result.assets.map((asset) => asset.uri)]);
     }
   };
 
   const handleRemoveImage = (index: number) => {
-    const updatedImages = images.filter((_, i) => i !== index);
-    setImages(updatedImages);
+    const updatedImages = localImages.filter((_, i) => i !== index);
+    setLocalImages(updatedImages);
   };
 
   const handleUpload = async () => {
@@ -89,29 +90,46 @@ const addproduct = () => {
 
     // Simulate image upload (replace with your actual upload logic)
     const uploadedImages = [];
-    for (const image of images) {
-      const uploadedImage = await uploadImageToCloudinary(image); // Replace with your upload function
-      if (uploadedImage) {
-        uploadedImages.push({
-          url: uploadedImage.url,
-          public_id: uploadedImage.public_id,
-        });
-      } else {
-        Alert.alert("Error", "One of the images failed to upload.");
+    for (const image of localImages) {
+      try {
+        const uploadedImage = await uploadImageToCloudinary(image); // Upload to Cloudinary
+        if (uploadedImage) {
+          uploadedImages.push({
+            url: uploadedImage.url, // Cloudinary URL
+            public_id: uploadedImage.public_id,
+          });
+        } else {
+          throw new Error("Image upload failed"); // Explicitly throw an error if upload fails
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        Alert.alert(
+          "Error",
+          "One of the images failed to upload. Please try again."
+        );
         setUploading(false);
-        return;
+        return false; // Stop the upload process and indicate failure
       }
     }
+    console.log("Uploaded Images: ", uploadedImages);
 
     setImages(uploadedImages.map((img) => img.url));
     setImagesPublicId(uploadedImages.map((img) => img.public_id));
-    // Alert.alert("Success", "Images uploaded successfully!");
+
+    setLocalImages([]); // Clear local images after upload
+    return true; // Indicate success                                      
   };
 
   const { user } = useSessionStore(); // Assuming you have a user object in your Zustand store
 
   const handleSubmit = async () => {
-    await handleUpload();
+    const uploadSuccess = await handleUpload(); // Ensure images are uploaded before submitting
+    console.log("uploadSuccess : ", uploadSuccess); // Debugging
+    if (!uploadSuccess) {
+      Alert.alert("Error", "Image upload failed. Please try again.");
+      setUploading(false);
+      return;
+    }
     if (
       !title ||
       !description ||
@@ -132,6 +150,8 @@ const addproduct = () => {
     }
 
     console.log("user._id : ", user._id); // Debugging
+    console.log("imagesPublicId : ", imagesPublicId); // Debugging
+    console.log("images : ", images); // Debugging
 
     try {
       const response = await axios.post(
@@ -155,18 +175,18 @@ const addproduct = () => {
 
         // Reset the form
         setUploading(false);
-      setTitle("");
-      setDescription("");
-      setPrice("");
-      setQuantity("");
-      setBrand("");
-      setCategory("");
-      setLocation("");
-      setImages([]);
-      setImagesPublicId([]);
+        setTitle("");
+        setDescription("");
+        setPrice("");
+        setQuantity("");
+        setBrand("");
+        setCategory("");
+        setLocation("");
+        setImages([]);
+        setImagesPublicId([]);
 
-      // Navigate to the home page
-      router.replace("/(tabs)");
+        // Navigate to the home page
+        router.replace("/(tabs)");
       } else {
         setUploading(false);
         Alert.alert("Error", "Failed to add product.");
@@ -180,170 +200,167 @@ const addproduct = () => {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor:"#18161b" }}
+      style={{ flex: 1, backgroundColor: "#18161b" }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       {/* Uploading Modal */}
-    <Modal
-      visible={uploading}
-      transparent
-      animationType="fade"
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          {/* <ActivityIndicator size="large" color="#004CFF" /> */}
-          <LottieView
-        source={require("../../assets/lottie/uploadingProduct.json")} // Path to your Lottie file
-        autoPlay
-        loop
-        style={{ width: 150, height: 150 }} // Adjust size as needed
-      />
-          <Text style={styles.modalText}>Hang Tight... We are uploading</Text>
+      <Modal visible={uploading} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* <ActivityIndicator size="large" color="#004CFF" /> */}
+            <LottieView
+              source={require("../../assets/lottie/uploadingProduct.json")} // Path to your Lottie file
+              autoPlay
+              loop
+              style={{ width: 150, height: 150 }} // Adjust size as needed
+            />
+            <Text style={styles.modalText}>Hang Tight... We are uploading</Text>
+          </View>
         </View>
-      </View>
-
-    </Modal>
+      </Modal>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
           {/* Illustration and Explanation Section */}
-        <View style={styles.illustrationContainer}>
-          <LottieView
-            source={require("../../assets/lottie/addProduct.json")} // Replace with your Lottie file
-            autoPlay
-            loop
-            style={{ width: 80, height: 80 }} // Adjust size as needed
-          />
-          <Text style={styles.illustrationTitle}>How Selling Works</Text>
-          <Text style={styles.illustrationText}>Your name and photo will show up on the product card — but don’t worry, your secrets (and DMs) stay safe unless you spill ‘em.
-          Got stuff just collecting dust? Turn it into cash and maybe fund your next chai date or dopamine buy.
-          </Text>
-        </View>
+          <View style={styles.illustrationContainer}>
+            <LottieView
+              source={require("../../assets/lottie/addProduct.json")} // Replace with your Lottie file
+              autoPlay
+              loop
+              style={{ width: 80, height: 80 }} // Adjust size as needed
+            />
+            <Text style={styles.illustrationTitle}>How Selling Works</Text>
+            <Text style={styles.illustrationText}>
+              Your name and photo will show up on the product card — but don’t
+              worry, your secrets (and DMs) stay safe unless you spill ‘em. Got
+              stuff just collecting dust? Turn it into cash and maybe fund your
+              next chai date or dopamine buy.
+            </Text>
+          </View>
 
-        <View style={styles.formContainer}>
+          <View style={styles.formContainer}>
+            <Text style={styles.title}>Sell Your Product</Text>
 
-          <Text style={styles.title}>Sell Your Product</Text>
-
-          {/* Image Upload */}
-          <View style={styles.uploadBoxOutsideBorder}>
-          <TouchableOpacity 
-          style={styles.uploadBox} 
-          onPress={pickImage}
-          activeOpacity={0.8}>
-            {/* Image Preview */}
-            <View style={styles.imagePreview}>
-              {images.map((uri, index) => (
-                <View key={index} style={styles.imageContainer}>
-                  <Image source={{ uri }} style={styles.previewImage} />
-                  {/* Remove Button */}
-                  <TouchableOpacity
-                    style={styles.removeButton}
-                    onPress={() => handleRemoveImage(index)}
-                  >
-                    <Image source={require("../../assets/images/delete-icon.png")} style={styles.removeButtonIcon}/>
-                  </TouchableOpacity>
+            {/* Image Upload */}
+            <View style={styles.uploadBoxOutsideBorder}>
+              <TouchableOpacity
+                style={styles.uploadBox}
+                onPress={pickImage}
+                activeOpacity={0.8}
+              >
+                {/* Image Preview */}
+                <View style={styles.imagePreview}>
+                  {localImages.map((uri, index) => (
+                    <View key={index} style={styles.imageContainer}>
+                      <Image source={{ uri }} style={styles.previewImage} />
+                      {/* Remove Button */}
+                      <TouchableOpacity
+                        style={styles.removeButton}
+                        onPress={() => handleRemoveImage(index)}
+                      >
+                        <Image
+                          source={require("../../assets/images/delete-icon.png")}
+                          style={styles.removeButtonIcon}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
                 </View>
-              ))}
+                <Image
+                  source={require("../../assets/images/upload-img.png")}
+                  style={{ width: 30, height: 30 }}
+                />
+                <Text style={styles.uploadText}>
+                  Tap to upload pics — make it look good!
+                </Text>
+              </TouchableOpacity>
             </View>
-            <Image
-              source={require("../../assets/images/upload-img.png")}
-              style={{ width: 30, height: 30 }}
-            />
-            <Text style={styles.uploadText}>Tap to upload pics — make it look good!</Text>
-          </TouchableOpacity>
-          </View>
 
-          {/* Input Fields */}
-          <View style={styles.allInputGroup}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Product Title *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Whats it called?"
-              value={title}
-              onChangeText={setTitle}
-              placeholderTextColor="#cccccc" // Light gray placeholder text
+            {/* Input Fields */}
+            <View style={styles.allInputGroup}>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Product Title *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Whats it called?"
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholderTextColor="#cccccc" // Light gray placeholder text
+                />
+              </View>
 
-            />
-          </View>
-
-
-          <Text style={styles.label}>Select a Category *</Text>
-          <CategorySelector
-            predefinedCategories={predefinedCategories}
-            selectedCategory={category}
-            onCategorySelect={(selectedCategory) =>
-              setCategory(selectedCategory)
-            }
-          />
-
-
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Description *</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Add some details... whats it like?"
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              placeholderTextColor="#cccccc" // Light gray placeholder text
-            />
-          </View>
-
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>Price *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="How much?"
-                value={price}
-                onChangeText={setPrice}
-                keyboardType="numeric"
-                placeholderTextColor="#cccccc" // Light gray placeholder text
-
+              <Text style={styles.label}>Select a Category *</Text>
+              <CategorySelector
+                predefinedCategories={predefinedCategories}
+                selectedCategory={category}
+                onCategorySelect={(selectedCategory) =>
+                  setCategory(selectedCategory)
+                }
               />
-            </View>
-            <View style={[styles.inputGroup, styles.halfWidth]}>
-              <Text style={styles.label}>Quantity *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="How many?"
-                value={quantity}
-                onChangeText={setQuantity}
-                keyboardType="numeric"
-                placeholderTextColor="#cccccc" // Light gray placeholder text
 
-              />
-            </View>
-          </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Description *</Text>
+                <TextInput
+                  style={[styles.input, styles.textArea]}
+                  placeholder="Add some details... whats it like?"
+                  value={description}
+                  onChangeText={setDescription}
+                  multiline
+                  placeholderTextColor="#cccccc" // Light gray placeholder text
+                />
+              </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Location *</Text>
-            {/* <TextInput
+              <View style={styles.row}>
+                <View style={[styles.inputGroup, styles.halfWidth]}>
+                  <Text style={styles.label}>Price *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="How much?"
+                    value={price}
+                    onChangeText={setPrice}
+                    keyboardType="numeric"
+                    placeholderTextColor="#cccccc" // Light gray placeholder text
+                  />
+                </View>
+                <View style={[styles.inputGroup, styles.halfWidth]}>
+                  <Text style={styles.label}>Quantity *</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="How many?"
+                    value={quantity}
+                    onChangeText={setQuantity}
+                    keyboardType="numeric"
+                    placeholderTextColor="#cccccc" // Light gray placeholder text
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Location *</Text>
+                {/* <TextInput
               style={styles.input}
               placeholder="Hostel, or anywhere around LPU"
               value={location}
               onChangeText={setLocation}
             /> */}
-            <LocationSelector 
-            selectedLocation={location} 
-            onSelectLocation={setLocation} />
+                <LocationSelector
+                  selectedLocation={location}
+                  onSelectLocation={setLocation}
+                />
+              </View>
 
-          </View>
-
-          <TouchableOpacity
-            style={[
-              styles.button,
-              uploading ? styles.disabledButton : styles.uploadButton,
-            ]}
-            onPress={handleSubmit}
-          >
-            <Text style={styles.buttonText}>Submit Product</Text>
-          </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  uploading ? styles.disabledButton : styles.uploadButton,
+                ]}
+                onPress={handleSubmit}
+              >
+                <Text style={styles.buttonText}>Submit Product</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>

@@ -30,6 +30,17 @@ export default function RootLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="product/index"
+        options={{
+          headerStyle: {
+            backgroundColor: "#18161b", // Dark background
+          },
+          headerTintColor: "#ffffff", // White text for back button
+          headerTitle: "", // Remove the title
+          
+        }}
+      />
       <Slot /> {/* 👈 Ensures nested pages render correctly */}
     </Stack>
   );

@@ -22,6 +22,9 @@ export const addProduct = async (req, res) => {
       return res.status(400).json({ error: "All required fields must be filled." });
     }
 
+    console.log("Received thumbnail:", thumbnail); // Debugging
+    console.log("Received images:", images);
+
     // Create a new product
     const product = new Product({
       title,
