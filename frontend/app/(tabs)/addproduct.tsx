@@ -116,7 +116,6 @@ const addproduct = () => {
     setImages(uploadedImages.map((img) => img.url));
     setImagesPublicId(uploadedImages.map((img) => img.public_id));
 
-    setLocalImages([]); // Clear local images after upload
     return true; // Indicate success                                      
   };
 
