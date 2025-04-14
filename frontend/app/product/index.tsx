@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,23 +8,96 @@ import {
   Dimensions,
   TouchableOpacity,
   Share,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import Icon from "react-native-vector-icons/Ionicons";
 import Carousel from "react-native-reanimated-carousel";
+import axios from "axios";
 
 const { width } = Dimensions.get("window"); // Get screen width for full-width images
 
 const ProductPage = () => {
-  const { product } = useLocalSearchParams(); // Retrieve product details passed as params
-  const productData = JSON.parse(product as string); // Parse the product data
+  const {productId} = useLocalSearchParams(); // Retrieve product ID from params
+  // console.log("Product ID received:", productId); // Debugging
+  const [productData, setProductData] = useState<any>(null); // State to hold product data
+  const [userDetails, setUserDetails] = useState<any>(null); // State to hold user details
+  const [userLoading, setUserLoading] = useState(true); // Loading state for user
+  const [loading, setLoading] = useState(true); // Loading state
+
+  //for old login when passing product details itself
+  // const { product } = useLocalSearchParams(); // Retrieve product details passed as params
+  // const productData = JSON.parse(product as string); // Parse the product data
   const [selectedIndex, setSelectedIndex] = useState(0); // Track the currently selected image
   const carouselRef = useRef(null); // Reference to the carousel with proper typing
 
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false); // Toggle description state
 
-  console.log("Product thumbnail:", productData.thumbnail); // Debugging
-  console.log("Product data:", productData); // Debugging
+  // console.log("Product thumbnail:", productData.thumbnail); // Debugging
+  // console.log("Product data:", productData); // Debugging
+
+  // Fetch product details from the database
+  const fetchProductDetails = async () => {
+    try {
+      const response = await axios.get(
+        `https://yourcustomsubdomain.loca.lt/api/products/getproduct/${productId}`
+      );
+      setProductData(response.data);
+      // console.log("Product details:", response.data); // Debugging
+
+      // Fetch user details after product data is fetched
+      const product = response.data as { postedBy?: string }; // Explicitly type response.data
+      if (product.postedBy) {
+        fetchUserDetails(product.postedBy);
+      } else {
+        setUserLoading(false); // No user to fetch
+      }
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserDetails = async (userId: string) => {
+    try {
+      console.log("Fetching user details for ID:", userId); // Debugging
+      const response = await axios.get(
+        `https://yourcustomsubdomain.loca.lt/api/users/getuser/${userId}`
+      );
+      setUserDetails(response.data);
+      console.log("User details fetched:", response.data); // Debugging
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    } finally {
+      setUserLoading(false); // Ensure user loading state is updated
+    }
+  };
+
+  useEffect(() => {
+    if (productId) {
+      fetchProductDetails();
+    } else {
+      console.error("Product ID is undefined");
+      setLoading(false); // Stop loading if productId is missing
+    }
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#209440" />
+      </View>
+    );
+  }
+
+  if (!productData) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>Product not found.</Text>
+      </View>
+    );
+  }
 
   const handleImagePress = (index: number) => {
     setSelectedIndex(index); // Update the selected index
@@ -182,17 +255,25 @@ const ProductPage = () => {
 
         {/* Posted By Card */}
         <View style={styles.postedByCard}>
-          <Image
-            source={{ uri: productData.postedBy.studentPicture }}
-            style={styles.postedByImageBlurred}
-            blurRadius={10} // Apply blur effect to the image
-          />
-          <View style={styles.postedByContent}>
-            <Text style={styles.postedByLabel}>Posted By</Text>
-            <Text style={styles.postedByName}>
-              {productData.postedBy.studentName.split(" ")[0]}...
-            </Text>
-          </View>
+          {userLoading ? (
+            <ActivityIndicator size="small" color="#209440" />
+          ) : userDetails ? (
+            <>
+              <Image
+                source={{ uri: userDetails.studentPicture }}
+                style={styles.postedByImageBlurred}
+                blurRadius={10} // Apply blur effect to the image
+              />
+              <View style={styles.postedByContent}>
+                <Text style={styles.postedByLabel}>Posted By</Text>
+                <Text style={styles.postedByName}>
+                  {userDetails.studentName.split(" ")[0]}...
+                </Text>
+              </View>
+            </>
+          ) : (
+            <Text style={styles.errorText}>User details not available</Text>
+          )}
         </View>
 
         {/* Footer Text */}
@@ -226,6 +307,9 @@ export default ProductPage;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#18161b", padding: 10 },
+  loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+  errorText: { color: "#ffffff", fontSize: 16 },
   imageContainer: { alignItems: "center", marginBottom: 20 },
   productImage: { width: "100%", height: 250, borderRadius: 10 },
   detailsContainer: {

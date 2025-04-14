@@ -45,7 +45,6 @@ export default function Index() {
   const [selectedSort, setSelectedSort] = useState("Newer First");
   const [searchQuery, setSearchQuery] = useState(""); // For search input
 
-
   const locations = [
     "Lawgate",
     "Inside Campus",
@@ -77,15 +76,21 @@ export default function Index() {
 
   const handleSortSelect = (option: string) => {
     setSelectedSort(option);
-  
+
     let sortedProducts = [...filteredProducts];
-  
+
     switch (option) {
       case "Newer First":
-        sortedProducts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        sortedProducts.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
         break;
       case "Older First":
-        sortedProducts.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+        sortedProducts.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
         break;
       case "Price Low to High":
         sortedProducts.sort((a, b) => a.price - b.price);
@@ -96,7 +101,7 @@ export default function Index() {
       default:
         break;
     }
-  
+
     setFilteredProducts(sortedProducts);
   };
 
@@ -108,7 +113,8 @@ export default function Index() {
       );
 
       const sortedProducts = response.data.sort(
-        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       setProducts(response.data);
       setFilteredProducts(response.data);
@@ -121,7 +127,7 @@ export default function Index() {
 
   useEffect(() => {
     fetchProducts();
-    handleSearch("")
+    handleSearch("");
   }, []);
 
   const handleSearch = (query: string) => {
@@ -138,31 +144,32 @@ export default function Index() {
 
   const handleCategorySelect = (selectedCategory: string) => {
     setCategory(selectedCategory);
-  
+
     if (selectedCategory === "All") {
       setFilteredProducts(products); // Show all products if "All" is selected
     } else {
       const filtered = products.filter(
-        (product) => product.category.toLowerCase() === selectedCategory.toLowerCase()
+        (product) =>
+          product.category.toLowerCase() === selectedCategory.toLowerCase()
       );
       setFilteredProducts(filtered);
     }
   };
 
-
-  const renderProduct = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      onPress={() =>
-        router.push({
-          pathname: "/product",
-          params: { product: JSON.stringify(item) }, // Pass product data as params
-        })
-      }
-    >
-      <ProductCard product={item} />
-    </TouchableOpacity>
-  );
-
+  const renderProduct = ({ item }: { item: any }) => {
+    return (
+      <TouchableOpacity
+        onPress={() =>
+          router.push({
+            pathname: "/product",
+            params: { productId: item._id }, // Pass product data as params
+          })
+        }
+      >
+        <ProductCard product={item} />
+      </TouchableOpacity>
+    );
+  };
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={"#18161b"} />
@@ -235,10 +242,15 @@ export default function Index() {
           onChangeText={handleSearch}
         />
         {searchQuery.trim() !== "" && (
-    <TouchableOpacity onPress={() => handleSearch("")}>
-      <Icon name="close-circle" size={22} color="white" style={styles.clearIcon} />
-    </TouchableOpacity>
-  )}
+          <TouchableOpacity onPress={() => handleSearch("")}>
+            <Icon
+              name="close-circle"
+              size={22}
+              color="white"
+              style={styles.clearIcon}
+            />
+          </TouchableOpacity>
+        )}
       </View>
 
       <FlatList
@@ -442,5 +454,5 @@ const styles = StyleSheet.create({
   },
   clearIcon: {
     marginLeft: 10, // Add spacing between the input and the icon
-  }
+  },
 });

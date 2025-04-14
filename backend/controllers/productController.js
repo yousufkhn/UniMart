@@ -1,4 +1,6 @@
 import Product from "../models/ProductModel.js";
+import mongoose from "mongoose";
+
 
 export const addProduct = async (req, res) => {
   try {
@@ -58,3 +60,28 @@ export const getAllProducts = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch products" }); // Return a 500 error with a message
   }
 }
+
+export const getProductById = async (req, res) => {
+  const { id } = req.params; // Extract product ID from the request parameters
+
+  // Validate the product ID
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: "Invalid product ID" });
+  }
+
+  try {
+    // Fetch product by ID
+    const product = await Product.findById(id);
+
+    // Handle case where product doesn't exist
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Return the product data
+    res.json(product);
+  } catch (error) {
+    console.error("Error fetching product:", error); // Log the error for debugging
+    res.status(500).json({ error: "Internal server error" }); // Return a generic error message
+  }
+};
