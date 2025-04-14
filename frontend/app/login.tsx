@@ -12,19 +12,27 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
+  StatusBar,
+  Dimensions,
+  ImageBackground,
+  ScrollView,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 import LottieView from "lottie-react-native";
 import axios, { get } from "axios";
-import { saveSession,getSession } from "@/utils/auth";
+import { saveSession, getSession } from "@/utils/auth";
 import { useSessionStore } from "@/utils/useSessionStore";
+import Icon from "react-native-vector-icons/Ionicons";
 
 export default function LoginScreen() {
   const router = useRouter();
   const [regNo, setRegNo] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const screenWidth = Dimensions.get("window").width;
 
   const handleLogin = async () => {
     if (!regNo || !password) {
@@ -46,7 +54,6 @@ export default function LoginScreen() {
 
       console.log("API Response:", response.data); // Debugging
 
-
       const data = response.data as {
         message: string;
         user: {
@@ -63,8 +70,7 @@ export default function LoginScreen() {
         };
       };
 
-      if (data.message === "Login & Fetch Successful")  {
-
+      if (data.message === "Login & Fetch Successful") {
         // Step 2: Save session locally
         const { setUser } = useSessionStore.getState();
         setUser(data.user); // Update Zustand store
@@ -83,52 +89,91 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <Image
-        source={require("../assets/images/login-img.jpg")}
-        style={{ width: "100%", height: "30%", marginBottom: 10, resizeMode: "cover" }}
-      />
-      <Text style={styles.title}>
-        {" "}
-        Welcome to UniMart 🛍️{"\n"} Your Campus Marketplace!
-      </Text>
-      <Text style={styles.subTitle}>Login with your UMS credentials </Text>
-      <TextInput
-        placeholder="Registration Number"
-        value={regNo}
-        onChangeText={setRegNo}
-        style={styles.input}
-        keyboardType="numeric"
-        placeholderTextColor={"#cccccc"}
-      />
+    <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <StatusBar backgroundColor="#090f1c" barStyle="light-content" />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ImageBackground
+          source={require("../assets/images/login-page-banner.png")}
+          style={[styles.imageBackground, { width: screenWidth }]}
+          resizeMode="cover"
+        >
+          <LinearGradient
+            colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.4)", "rgba(0,0,0,0.8)", "#18161b"]} // Add more gradient stops
+            locations={[0, 0.5, 0.7, 1]}
+            style={styles.gradientOverlay}
+          >
+            {/* <Text style={styles.title}>
+              Welcome to UniMart 🛍️{"\n"}Your Campus Marketplace!
+            </Text> */}
 
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        placeholderTextColor={"#cccccc"} 
-      />
-
-      {loading ? (
+            <View style={styles.subTitleRow}>
+              <Text style={styles.subTitle}>
+                Login with your UMS credentials
+              </Text>
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <Icon
+                  name="information-circle-outline"
+                  size={16}
+                  color="#ffffff"
+                  style={styles.icon}
+                  />
+              </TouchableOpacity>
+            </View>
+            {/* Login Form */}
+            <View style={styles.formContainer}>
+              <TextInput
+                placeholder="Registration Number"
+                value={regNo}
+                onChangeText={setRegNo}
+                style={styles.input}
+                keyboardType="numeric"
+                placeholderTextColor={"#cccccc"}
+              />
+              <TextInput
+                placeholder="Password"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+                style={styles.input}
+                placeholderTextColor={"#cccccc"}
+              />
+                {loading ? (
         <ActivityIndicator size="large" color="#004CFF" />
       ) : (
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
       )}
+            </View>
+          </LinearGradient>
+        </ImageBackground>
 
-      <View style={styles.disclaimerBox}>
-        <Text style={styles.disclaimerText}>
-          🔐 Why login with your university ID?{"\n"}
-          Using your university credentials ensures a safe & trusted
-          marketplace. It helps verify that all users are genuine students,
-          making transactions secure & scam-free
-        </Text>
-      </View>
+        {/* Disclaimer Modal */}
+        <Modal
+          visible={modalVisible}
+          animationType="fade"
+          transparent
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.smallModalContainer}>
+              <Text style={styles.modalText}>
+                🔐 Why login with your university ID?{"\n\n"}
+                Using your university credentials ensures a safe & trusted
+                marketplace. It helps verify that all users are genuine
+                students, making transactions secure & scam-free.
+              </Text>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={[styles.button, { marginTop: 20 }]}
+              >
+                <Text style={styles.buttonText}>Got it</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
-      {/* Modal for Lottie Animation */}
+        {/* Modal for Login Animation */}
       <Modal visible={loading} transparent animationType="fade">
         <View style={styles.modalOverlay}>
         <View style={styles.smallModalContainer}>
@@ -144,8 +189,7 @@ export default function LoginScreen() {
         </View>
         </View>
       </Modal>
-
-      
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -153,31 +197,35 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
     backgroundColor: "#18161b", // Dark background
   },
-  image: {
-    width: "100%",
-    height: "30%",
-    marginBottom: 10,
-    resizeMode: "cover",
-    borderRadius: 10,
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  formContainer: {
+    paddingTop: 20,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#ffffff", // White text
-    marginBottom: 20,
+    color: "#ffffff",
+    marginBottom: 10,
     textAlign: "center",
+  },
+  subTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   subTitle: {
     fontSize: 14,
-    color: "#cccccc", // Light gray text
-    marginBottom: 20,
+    color: "#cccccc",
     fontWeight: "500",
-    alignSelf: "flex-start",
+  },
+  icon: {
+    color: "#cccccc",
+    fontSize: 16,
+    marginLeft: 6,
+    marginTop: 2,
   },
   input: {
     width: "100%",
@@ -223,7 +271,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)", // Semi-transparent dark overlay
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
   smallModalContainer: {
     width: "80%", // Smaller modal width
@@ -246,5 +294,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#cccccc", // Light gray text
     textAlign: "center",
+  },
+  imageBackground: {
+    height: "100%",
+    justifyContent: "flex-end",
+  },
+  gradientOverlay: {
+    paddingHorizontal: 20,
+    paddingBottom: 40,
+    justifyContent: "flex-end",
+    flex: 1,
   },
 });

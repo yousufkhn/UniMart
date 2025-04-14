@@ -15,10 +15,22 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Carousel from "react-native-reanimated-carousel";
 import axios from "axios";
 
+// Images import
+import electronicsImage from "../../assets/images/categories/electronics.png";
+import fashionImage from "../../assets/images/categories/fashion.png";
+import homeAppliancesImage from "../../assets/images/categories/home_appliances.png";
+import booksImage from "@/assets/images/categories/books.png";
+import toysImage from "@/assets/images/categories/toys.png";
+import sportsImage from "@/assets/images/categories/sports.png";
+import groceriesImage from "@/assets/images/categories/groceries.png";
+import healthBeautyImage from "@/assets/images/categories/health_beauty.png";
+import automotiveImage from "@/assets/images/categories/automotive.png";
+import furnitureImage from "@/assets/images/categories/furniture.png";
+
 const { width } = Dimensions.get("window"); // Get screen width for full-width images
 
 const ProductPage = () => {
-  const {productId} = useLocalSearchParams(); // Retrieve product ID from params
+  const { productId } = useLocalSearchParams(); // Retrieve product ID from params
   // console.log("Product ID received:", productId); // Debugging
   const [productData, setProductData] = useState<any>(null); // State to hold product data
   const [userDetails, setUserDetails] = useState<any>(null); // State to hold user details
@@ -58,6 +70,19 @@ const ProductPage = () => {
       setLoading(false);
     }
   };
+
+  const categoriesIcons = [
+    { name: "Electronics", image: electronicsImage },
+    { name: "Fashion", image: fashionImage },
+    { name: "Appliances", image: homeAppliancesImage },
+    { name: "Books", image: booksImage },
+    { name: "Toys", image: toysImage },
+    { name: "Sports", image: sportsImage },
+    { name: "Groceries", image: groceriesImage },
+    { name: "Health", image: healthBeautyImage },
+    { name: "Automotive", image: automotiveImage },
+    { name: "Furniture", image: furnitureImage },
+  ];
 
   const fetchUserDetails = async (userId: string) => {
     try {
@@ -124,10 +149,7 @@ const ProductPage = () => {
       
   ${productData.title}
   
-  ${productData.description.substring(
-    0,
-    100
-  )}...
+  ${productData.description.substring(0, 100)}...
   
   Price: ₹${productData.price}
   
@@ -197,15 +219,16 @@ const ProductPage = () => {
 
         {/* Product Details */}
         <View style={styles.detailsContainer}>
-          <View style={styles.priceRow}>
+          {/* Title and Price */}
+          <View style={styles.titlePriceRow}>
+            <Text style={styles.title}>{productData.title}</Text>
             <Text style={styles.price}>₹{productData.price}</Text>
-            <Text style={styles.daysAgo}>
-              Posted : {calculateDaysAgo(productData.createdAt)}
-            </Text>
           </View>
-          <Text style={styles.title}>{productData.title}</Text>
-          <Text style={styles.quantity}>Quantity: {productData.quantity}</Text>
-          {/* Collapsible Description */}
+
+          {/* Thin Line */}
+          <View style={styles.divider} />
+
+          {/* Description */}
           <Text
             style={styles.description}
             numberOfLines={isDescriptionExpanded ? undefined : 2} // Show only 2 lines if not expanded
@@ -223,11 +246,13 @@ const ProductPage = () => {
         <View style={styles.cardContainer}>
           {/* Category Section */}
           <View style={styles.cardSection}>
-            <Icon
-              name="pricetag-outline"
-              size={20}
-              color="#209440"
-              style={styles.cardIcon}
+            <Image
+              source={
+                categoriesIcons.find(
+                  (category) => category.name === productData.category
+                )?.image || require("../../assets/images/categories/all.png") // Fallback to a default icon
+              }
+              style={styles.categoryIcon}
             />
             <View>
               <Text style={styles.cardLabel}>Category</Text>
@@ -240,11 +265,9 @@ const ProductPage = () => {
 
           {/* Location Section */}
           <View style={styles.cardSection}>
-            <Icon
-              name="location-outline"
-              size={20}
-              color="#209440"
-              style={styles.cardIcon}
+            <Image
+              source={require("../../assets/images/map.png")}
+              style={styles.categoryIcon}
             />
             <View>
               <Text style={styles.cardLabel}>Location</Text>
@@ -253,21 +276,26 @@ const ProductPage = () => {
           </View>
         </View>
 
-        {/* Posted By Card */}
+        {/* Posted By Section */}
         <View style={styles.postedByCard}>
           {userLoading ? (
             <ActivityIndicator size="small" color="#209440" />
           ) : userDetails ? (
             <>
+              {/* Blurred Image */}
               <Image
                 source={{ uri: userDetails.studentPicture }}
                 style={styles.postedByImageBlurred}
                 blurRadius={10} // Apply blur effect to the image
               />
               <View style={styles.postedByContent}>
-                <Text style={styles.postedByLabel}>Posted By</Text>
+                {/* First Word of the Name */}
                 <Text style={styles.postedByName}>
-                  {userDetails.studentName.split(" ")[0]}...
+                  {userDetails.studentName.split(" ")[0] + "..."}{" "}
+                  {/* Extract only the first word */}
+                </Text>
+                <Text style={styles.postedByDaysAgo}>
+                  {calculateDaysAgo(productData.createdAt)}
                 </Text>
               </View>
             </>
@@ -315,14 +343,20 @@ const styles = StyleSheet.create({
   detailsContainer: {
     marginBottom: 10,
     padding: 10,
-    backgroundColor: "#202126",
     borderRadius: 10,
+    backgroundColor: "#202126",
+  },
+  titlePriceRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 5,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "600",
     color: "#ffffff",
-    marginBottom: 10,
+    flex: 1, // Allow the title to take up available space
   },
   quantity: {
     fontSize: 14,
@@ -360,14 +394,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   price: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: "600",
     color: "white",
-  },
-  daysAgo: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: "#cccccc",
   },
   description: { fontSize: 16, color: "#cccccc", marginBottom: 5 },
   toggleDescription: {
@@ -401,6 +430,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#ffffff",
   },
+  categoryIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+    resizeMode: "contain", // Ensure the icon fits within the bounds
+  },
   verticalDivider: {
     width: 1,
     height: "100%",
@@ -415,27 +450,30 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 20,
-    overflow: "hidden", // Ensure the content stays within the card
   },
-  postedByImageBlurred: {
-    width: 50,
-    height: 50,
+  postedByImage: {
+    width: 40,
+    height: 40,
     borderRadius: 25,
     marginRight: 15,
   },
   postedByContent: {
     flex: 1,
   },
-  postedByLabel: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#cccccc",
-    marginBottom: 5,
-  },
   postedByName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "600",
     color: "#ffffff",
+  },
+  postedByDaysAgo: {
+    fontSize: 12,
+    color: "#cccccc",
+  },
+  postedByImageBlurred: {
+    width: 40,
+    height: 40,
+    borderRadius: 25,
+    marginRight: 15,
   },
   bottomNav: {
     flexDirection: "row",
@@ -480,5 +518,11 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: "#cccccc",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#333", // Subtle gray color for the line
+    marginVertical: 5, // Add spacing above and below the line
+    opacity: 0.5, // Slight transparency for a subtle effect
   },
 });

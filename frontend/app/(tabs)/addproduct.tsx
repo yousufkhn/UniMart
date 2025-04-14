@@ -42,12 +42,12 @@ import { router } from "expo-router";
 const predefinedCategories = [
   { name: "Electronics", image: electronicsImage },
   { name: "Fashion", image: fashionImage },
-  { name: "Home Appliances", image: homeAppliancesImage },
+  { name: "Appliances", image: homeAppliancesImage },
   { name: "Books", image: booksImage },
   { name: "Toys", image: toysImage },
   { name: "Sports", image: sportsImage },
   { name: "Groceries", image: groceriesImage },
-  { name: "Health & Beauty", image: healthBeautyImage },
+  { name: "Health", image: healthBeautyImage },
   { name: "Automotive", image: automotiveImage },
   { name: "Furniture", image: furnitureImage },
   { name: "Others", image: othersImage },
@@ -182,6 +182,7 @@ const addproduct = () => {
         setCategory("");
         setLocation("");
         setImages([]);
+        setLocalImages([]);
         setImagesPublicId([]);
 
         // Navigate to the home page
