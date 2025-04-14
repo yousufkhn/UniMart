@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Share,
   ActivityIndicator,
+  Linking,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -264,7 +265,10 @@ const ProductPage = () => {
           <View style={styles.verticalDivider} />
 
           {/* Location Section */}
-          <View style={styles.cardSection}>
+          <TouchableOpacity style={styles.cardSection}
+          // onPress={() => Linking.openURL(productData.locationLink)} // Open Google Maps link
+          onPress={() => Linking.openURL("https://maps.app.goo.gl/998vq68rmUhCoCCb6")}
+          >
             <Image
               source={require("../../assets/images/map.png")}
               style={styles.categoryIcon}
@@ -272,8 +276,9 @@ const ProductPage = () => {
             <View>
               <Text style={styles.cardLabel}>Location</Text>
               <Text style={styles.cardValue}>{productData.location}</Text>
+              
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Posted By Section */}
@@ -525,4 +530,7 @@ const styles = StyleSheet.create({
     marginVertical: 5, // Add spacing above and below the line
     opacity: 0.5, // Slight transparency for a subtle effect
   },
+locationIcon: {
+  marginLeft: 10, // Add spacing between the icon and the text
+},
 });

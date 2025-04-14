@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,20 +10,24 @@ import {
   Modal,
   Pressable,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import LottieView from "lottie-react-native";
 import { useSessionStore } from "@/utils/useSessionStore";
-import AnnouncementCard from "../../components/AnnoucementCard";
-import { useEffect, useState } from "react";
 import axios from "axios";
+import { router } from "expo-router";
+
+// Components
 import HomePageCategorySelector from "@/components/HomePageCategorySelector";
 import ProductCard from "@/components/ProductCard";
+import SortOptions from "@/components/SortOptions";
 
-// Images import
-import allImage from "../../assets/images/categories/all.png";
-import electronicsImage from "../../assets/images/categories/electronics.png";
-import fashionImage from "../../assets/images/categories/fashion.png";
-import homeAppliancesImage from "../../assets/images/categories/home_appliances.png";
+// Images
+import allImage from "@/assets/images/categories/all.png";
+import electronicsImage from "@/assets/images/categories/electronics.png";
+import fashionImage from "@/assets/images/categories/fashion.png";
+import homeAppliancesImage from "@/assets/images/categories/home_appliances.png";
 import booksImage from "@/assets/images/categories/books.png";
 import toysImage from "@/assets/images/categories/toys.png";
 import sportsImage from "@/assets/images/categories/sports.png";
@@ -30,12 +35,11 @@ import groceriesImage from "@/assets/images/categories/groceries.png";
 import healthBeautyImage from "@/assets/images/categories/health_beauty.png";
 import automotiveImage from "@/assets/images/categories/automotive.png";
 import furnitureImage from "@/assets/images/categories/furniture.png";
-import SortOptions from "@/components/SortOptions";
-import { router } from "expo-router";
 
 export default function Index() {
   const { user } = useSessionStore();
 
+  // State Variables
   const [location, setLocation] = useState("All");
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
@@ -43,16 +47,10 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("All");
   const [selectedSort, setSelectedSort] = useState("Newer First");
-  const [searchQuery, setSearchQuery] = useState(""); // For search input
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const locations = [
-    "Lawgate",
-    "Inside Campus",
-    "Phagwara",
-    "Deepnagar",
-    "All",
-  ];
-
+  // Predefined Data
+  const locations = ["Law Gate", "LPU Campus", "Phagwara", "DeepNagar", "All"];
   const predefinedCategories = [
     { name: "All", image: allImage },
     { name: "Electronics", image: electronicsImage },
@@ -66,7 +64,6 @@ export default function Index() {
     { name: "Automotive", image: automotiveImage },
     { name: "Furniture", image: furnitureImage },
   ];
-
   const sortOptions = [
     "Newer First",
     "Price Low to High",
@@ -74,10 +71,52 @@ export default function Index() {
     "Older First",
   ];
 
-  const handleSortSelect = (option: string) => {
+  // Fetch Products
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get<any[]>(
+        "https://yourcustomsubdomain.loca.lt/api/products/getallproducts"
+      );
+
+      const sortedProducts = response.data.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setProducts(sortedProducts);
+      applyFilters(sortedProducts);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Apply Filters
+  const applyFilters = (productsToFilter: any[] = products) => {
+    const filtered = productsToFilter.filter((product) => {
+      const matchesSearch = product.title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesCategory =
+        category === "All" ||
+        product.category.toLowerCase() === category.toLowerCase();
+      const matchesLocation =
+        location === "All" ||
+        product.location?.toLowerCase() === location.toLowerCase();
+
+      return matchesSearch && matchesCategory && matchesLocation;
+    });
+
+    setFilteredProducts(filtered);
+    handleSortSelect(selectedSort, filtered);
+  };
+
+  // Handle Sorting
+  const handleSortSelect = (option: string, productsToSort: any[] = filteredProducts) => {
     setSelectedSort(option);
 
-    let sortedProducts = [...filteredProducts];
+    let sortedProducts = [...productsToSort];
 
     switch (option) {
       case "Newer First":
@@ -105,96 +144,102 @@ export default function Index() {
     setFilteredProducts(sortedProducts);
   };
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get<any[]>(
-        "https://yourcustomsubdomain.loca.lt/api/products/getallproducts"
-      );
-
-      const sortedProducts = response.data.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-      setProducts(response.data);
-      setFilteredProducts(response.data);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts();
-    handleSearch("");
-  }, []);
-
+  // Handle Search
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    if (query.trim() === "") {
-      setFilteredProducts(products); // Reset to all products if query is empty
-    } else {
-      const filtered = products.filter((product) =>
-        product.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredProducts(filtered);
-    }
+    applyFilters();
   };
 
+  // Handle Category Selection
   const handleCategorySelect = (selectedCategory: string) => {
     setCategory(selectedCategory);
-
-    if (selectedCategory === "All") {
-      setFilteredProducts(products); // Show all products if "All" is selected
-    } else {
-      const filtered = products.filter(
-        (product) =>
-          product.category.toLowerCase() === selectedCategory.toLowerCase()
-      );
-      setFilteredProducts(filtered);
-    }
+    applyFilters();
   };
 
-  const renderProduct = ({ item }: { item: any }) => {
+  // Handle Location Selection
+  const handleLocationSelect = (selectedLocation: string) => {
+    setLocation(selectedLocation);
+  
+    // Apply filters immediately after updating the location
+    const filtered = products.filter((product) => {
+      const matchesLocation =
+        selectedLocation === "All" ||
+        product.location?.toLowerCase() === selectedLocation.toLowerCase();
+      const matchesCategory =
+        category === "All" ||
+        product.category.toLowerCase() === category.toLowerCase();
+      const matchesSearch = product.title
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+  
+      return matchesLocation && matchesCategory && matchesSearch;
+    });
+  
+    setFilteredProducts(filtered);
+    handleSortSelect(selectedSort, filtered); // Reapply sorting
+    setDropdownVisible(false); // Close the dropdown after filtering
+  };  
+
+  // Render Product
+  const renderProduct = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: "/product",
+          params: { productId: item._id },
+        })
+      }
+    >
+      <ProductCard product={item} />
+    </TouchableOpacity>
+  );
+
+  // Render Empty List
+  const renderEmptyList = () => {
+    if (loading) {
+      return (
+        <View style={styles.emptyContainer}>
+          <ActivityIndicator size="large" color="#209440" />
+          <Text style={styles.emptyText}>Loading products...</Text>
+        </View>
+      );
+    }
+
     return (
-      <TouchableOpacity
-        onPress={() =>
-          router.push({
-            pathname: "/product",
-            params: { productId: item._id }, // Pass product data as params
-          })
-        }
-      >
-        <ProductCard product={item} />
-      </TouchableOpacity>
+      <View style={styles.emptyContainer}>
+        <LottieView
+          source={require("../../assets/lottie/empty.json")}
+          autoPlay
+          loop
+          style={styles.lottie}
+        />
+        <Text style={styles.emptyText}>No products available</Text>
+      </View>
     );
   };
+
+  // Fetch products on initial load
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={"#18161b"} />
+
+      {/* Top Bar */}
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.locationContainer}
           onPress={() => setDropdownVisible(true)}
         >
-          <Icon
-            name="location-sharp"
-            size={20}
-            color="#209440"
-            style={styles.locationIcon}
-          />
+          <Icon name="location-sharp" size={20} color="#209440" style={styles.locationIcon} />
           <Text style={styles.locationText}>{location}</Text>
-          <Icon
-            name="chevron-down"
-            size={20}
-            color="white"
-            style={styles.locationIcon}
-          />
+          <Icon name="chevron-down" size={20} color="white" style={styles.locationIcon} />
         </TouchableOpacity>
 
         <Modal
-          transparent={true}
+          transparent
           visible={isDropdownVisible}
           animationType="fade"
           onRequestClose={() => setDropdownVisible(false)}
@@ -208,10 +253,7 @@ export default function Index() {
                 <TouchableOpacity
                   key={loc}
                   style={styles.dropdownItem}
-                  onPress={() => {
-                    setLocation(loc);
-                    setDropdownVisible(false);
-                  }}
+                  onPress={() => handleLocationSelect(loc)}
                 >
                   <Text style={styles.dropdownText}>{loc}</Text>
                 </TouchableOpacity>
@@ -232,6 +274,7 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
+      {/* Search Bar */}
       <View style={styles.searchBar}>
         <Icon name="search" size={22} color="white" style={styles.searchIcon} />
         <TextInput
@@ -243,16 +286,12 @@ export default function Index() {
         />
         {searchQuery.trim() !== "" && (
           <TouchableOpacity onPress={() => handleSearch("")}>
-            <Icon
-              name="close-circle"
-              size={22}
-              color="white"
-              style={styles.clearIcon}
-            />
+            <Icon name="close-circle" size={22} color="white" />
           </TouchableOpacity>
         )}
       </View>
 
+      {/* Product List */}
       <FlatList
         data={filteredProducts}
         keyExtractor={(item) => item._id}
@@ -262,13 +301,10 @@ export default function Index() {
         contentContainerStyle={styles.list}
         ListHeaderComponent={
           <View>
-            {/* <Text style={styles.categoriesTitle}>Categories</Text> */}
             <HomePageCategorySelector
               predefinedCategories={predefinedCategories}
               selectedCategory={category}
-              onCategorySelect={(selectedCategory) =>
-                handleCategorySelect(selectedCategory)
-              }
+              onCategorySelect={handleCategorySelect}
             />
             <SortOptions
               options={sortOptions}
@@ -277,7 +313,7 @@ export default function Index() {
             />
           </View>
         }
-        // ListFooterComponent={<AnnouncementCard />}
+        ListEmptyComponent={renderEmptyList}
       />
     </View>
   );
@@ -288,14 +324,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 4,
     paddingTop: 8,
-    backgroundColor: "#18161b", // Dark background
+    backgroundColor: "#18161b",
   },
   topBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     padding: 5,
-    backgroundColor: "#18161b", // Matches the container background
+    backgroundColor: "#18161b",
   },
   profileContainer: {
     width: 38,
@@ -303,7 +339,7 @@ const styles = StyleSheet.create({
     borderRadius: 29,
     borderWidth: 1,
     borderColor: "#242328",
-    backgroundColor: "#242328", // Darker shade for profile container
+    backgroundColor: "#242328",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -337,16 +373,16 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "white", // White text for dark theme
+    color: "white",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent dark overlay
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
   dropdown: {
-    backgroundColor: "#202126", // Matches the search bar background
+    backgroundColor: "#202126",
     borderRadius: 10,
     padding: 10,
     width: "80%",
@@ -359,13 +395,13 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: 16,
-    color: "white", // White text for dropdown items
+    color: "white",
   },
   searchBar: {
     marginHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#202126", // Dark background for search bar
+    backgroundColor: "#202126",
     borderRadius: 12,
     borderColor: "#2a2b2f",
     borderWidth: 1,
@@ -378,81 +414,30 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "white", // White text for search input
+    color: "white",
     fontWeight: "500",
   },
   list: {
     padding: 10,
-    backgroundColor: "#18161b", // Matches the container background
+    backgroundColor: "#18161b",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },
-  card: {
-    backgroundColor: "#202126", // Dark card background
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-    borderWidth: 1,
-    borderColor: "#2a2b2f",
-  },
-  thumbnail: {
-    width: "100%",
-    height: 180,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  cardContent: {
-    paddingHorizontal: 5,
-  },
-  titleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  productTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white", // White text for product title
+  emptyContainer: {
     flex: 1,
-    marginRight: 10,
-  },
-  price: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#209440", // Green accent for price
-  },
-  description: {
-    fontSize: 14,
-    color: "#cccccc", // Light gray for description text
-    marginBottom: 10,
-  },
-  uploadedByRow: {
-    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    paddingVertical: 50,
   },
-  userAvatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 10,
+  lottie: {
+    width: 150,
+    height: 150,
+    marginBottom: 20,
   },
-  uploadedByText: {
-    fontSize: 14,
-    color: "#cccccc", // Light gray for uploaded by text
-  },
-  categoriesTitle: {
-    fontSize: 20,
+  emptyText: {
+    fontSize: 16,
+    color: "#cccccc",
+    textAlign: "center",
     fontWeight: "500",
-    color: "white", // White text for categories title
-    marginBottom: 15,
-  },
-  clearIcon: {
-    marginLeft: 10, // Add spacing between the input and the icon
   },
 });
